@@ -1,0 +1,30 @@
+[package]
+name = "wasm-triangle"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+rand = "0.8"
+getrandom = { version = "0.2", features = ["js"] }
+wasm-bindgen = "0.2"
+web-sys = { version = "0.3", features = [
+    'console',
+    'Document',
+    'Window',
+    'WebGl2RenderingContext',
+    'WebGlShader',
+    'WebGlProgram',
+    'HtmlCanvasElement',
+    'HtmlElement',
+    'Element',
+    'WebGlBuffer',
+    'CanvasRenderingContext2d'
+]}
+js-sys = "0.3"
+
+
+
