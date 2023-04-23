@@ -9,7 +9,6 @@ use web_sys::WebGl2RenderingContext;
 use web_sys::WebGlProgram;
 use web_sys::WebGlShader;
 use web_sys::{window, CanvasRenderingContext2d, HtmlCanvasElement};
-
 #[wasm_bindgen]
 pub struct WorldWrapper(Rc<RefCell<World>>);
 
@@ -23,6 +22,7 @@ impl WorldWrapper {
         WorldWrapper(Rc::new(RefCell::new(world)))
     }
 
+    #[wasm_bindgen]
     pub fn update_and_render(&self, canvas: HtmlCanvasElement) {
         let context = canvas
             .get_context("2d")
@@ -38,57 +38,36 @@ impl WorldWrapper {
         // Clone the Rc<RefCell<World>> to use inside the closure
         let world_clone = self.0.clone();
 
-        // Update the world state
-        self.0.borrow_mut().update();
+        let main_closure: Rc<RefCell<Option<Closure<dyn FnMut(f64)>>>> =
+            Rc::new(RefCell::new(None));
+        let main_closure_clone = main_closure.clone();
 
-        // Render the world
-        context.clear_rect(
-            0.0,
-            0.0,
-            width as f64 * cell_size,
-            height as f64 * cell_size,
-        );
-
-        let world = self.0.borrow();
-        for y in 0..height {
-            for x in 0..width {
-                let index = world.get_index(x, y);
-                let cell = world.cells[index];
-
-                // Set the fill style based on the cell state (alive or dead)
-                context.set_fill_style(&JsValue::from_str(if cell { "black" } else { "white" }));
-
-                // Draw the rectangle for the cell
-                context.fill_rect(
-                    x as f64 * cell_size,
-                    y as f64 * cell_size,
-                    cell_size,
-                    cell_size,
-                );
-            }
-        }
-
-        // Schedule the next frame
-        let closure = Closure::wrap(Box::new(move || {
-            // Use the cloned value inside the closure
+        *main_closure.borrow_mut() = Some(Closure::wrap(Box::new(move |timestamp: f64| {
+            // Update the world state
             world_clone.borrow_mut().update();
-            // Render the world using the existing code
+
+            // Render the world
             context.clear_rect(
                 0.0,
                 0.0,
                 width as f64 * cell_size,
                 height as f64 * cell_size,
             );
+
             let world = world_clone.borrow();
             for y in 0..height {
                 for x in 0..width {
                     let index = world.get_index(x, y);
                     let cell = world.cells[index];
+
+                    // Set the fill style based on the cell state (alive or dead)
                     context.set_fill_style(&JsValue::from_str(if cell {
                         "black"
                     } else {
                         "white"
                     }));
+
+                    // Draw the rectangle for the cell
                     context.fill_rect(
                         x as f64 * cell_size,
                         y as f64 * cell_size,
@@ -97,14 +76,32 @@ impl WorldWrapper {
                     );
                 }
             }
-        }) as Box<dyn FnMut()>);
 
+            // Schedule the next frame using a new closure
+            window()
+                .expect("Failed to get window object")
+                .request_animation_frame(
+                    main_closure_clone
+                        .borrow()
+                        .as_ref()
+                        .unwrap()
+                        .as_ref()
+                        .unchecked_ref(),
+                )
+                .unwrap();
+        }) as Box<dyn FnMut(f64)>));
+        // Schedule the initial frame
         window()
-            .expect("Failed to get window object") // Unwrap the Option<Window> here
-            .request_animation_frame(closure.as_ref().unchecked_ref())
+            .expect("Failed to get window object")
+            .request_animation_frame(
+                main_closure
+                    .borrow()
+                    .as_ref()
+                    .unwrap()
+                    .as_ref()
+                    .unchecked_ref(),
+            )
             .unwrap();
-
-        closure.forget();
     }
 }
 

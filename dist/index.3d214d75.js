@@ -557,7 +557,6 @@ function hmrAccept(bundle, id) {
 }
 
 },{}],"bB7Pu":[function(require,module,exports) {
-// index.js
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 var _wasmTriangleJs = require("./pkg/wasm_triangle.js");
 var _wasmTriangleJsDefault = parcelHelpers.interopDefault(_wasmTriangleJs);
@@ -568,7 +567,7 @@ const runWasm = async ()=>{
     canvas.height = window.innerHeight;
     const width = 64;
     const height = 64;
-    const worldWrapper = (0, _wasmTriangleJs.WorldWrapper).new(width, height);
+    const worldWrapper = (0, _wasmTriangleJs.WorldWrapper).new(width, height); // Create a new instance of WorldWrapper using the 'new' method
     // Call the update_and_render method on the WorldWrapper instance
     worldWrapper.update_and_render(canvas);
 };
@@ -729,8 +728,8 @@ function makeMutClosure(arg0, arg1, dtor, f) {
     real.original = state;
     return real;
 }
-function __wbg_adapter_22(arg0, arg1) {
-    wasm._dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__hbd8124250dbfb664(arg0, arg1);
+function __wbg_adapter_24(arg0, arg1, arg2) {
+    wasm._dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__ha83e679148c818d5(arg0, arg1, arg2);
 }
 function handleError(f, args) {
     try {
@@ -793,6 +792,15 @@ async function load(module1, imports) {
 function getImports() {
     const imports = {};
     imports.wbg = {};
+    imports.wbg.__wbindgen_cb_drop = function(arg0) {
+        const obj = takeObject(arg0).original;
+        if (obj.cnt-- == 1) {
+            obj.a = 0;
+            return true;
+        }
+        const ret = false;
+        return ret;
+    };
     imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
         takeObject(arg0);
     };
@@ -975,8 +983,8 @@ function getImports() {
         const ret = wasm.memory;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper56 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 12, __wbg_adapter_22);
+    imports.wbg.__wbindgen_closure_wrapper57 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 12, __wbg_adapter_24);
         return addHeapObject(ret);
     };
     return imports;

@@ -1,5 +1,3 @@
-// index.js
-
 import init, { WorldWrapper } from './pkg/wasm_triangle.js';
 
 const runWasm = async () => {
@@ -11,7 +9,7 @@ const runWasm = async () => {
 
     const width = 64;
     const height = 64;
-    const worldWrapper = WorldWrapper.new(width, height);
+    const worldWrapper = WorldWrapper.new(width, height); // Create a new instance of WorldWrapper using the 'new' method
 
     // Call the update_and_render method on the WorldWrapper instance
     worldWrapper.update_and_render(canvas);
