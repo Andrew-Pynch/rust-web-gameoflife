@@ -1,157 +1,118 @@
-mod world;
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::io::Write;
+use std::thread;
+use std::time::Duration;
 
-use crate::world::World;
-use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsCast;
-use web_sys::WebGl2RenderingContext;
-use web_sys::WebGlProgram;
-use web_sys::WebGlShader;
-use web_sys::{window, CanvasRenderingContext2d, HtmlCanvasElement};
-#[wasm_bindgen]
-pub struct WorldWrapper(Rc<RefCell<World>>);
+const WIDTH: usize = 50;
+const HEIGHT: usize = 20;
+const RECURSION_DEPTH: usize = 2;
 
-// lib.rs
+#[derive(Clone)]
+enum Cell {
+    Dead,
+    Alive,
+    Board(Vec<Vec<Cell>>),
+}
 
-#[wasm_bindgen]
-impl WorldWrapper {
-    pub fn new(width: usize, height: usize) -> WorldWrapper {
-        let mut world = World::new(width, height);
-        world.randomize();
-        WorldWrapper(Rc::new(RefCell::new(world)))
+fn main() {
+    let mut board = create_board(RECURSION_DEPTH);
+    initialize_board(&mut board);
+    loop {
+        print_board(&board);
+        board = evolve(&board);
+        thread::sleep(Duration::from_millis(200));
+    }
+}
+
+fn create_board(depth: usize) -> Vec<Vec<Cell>> {
+    if depth == 0 {
+        vec![vec![Cell::Dead; WIDTH]; HEIGHT]
+    } else {
+        vec![vec![create_board(depth - 1); WIDTH]; HEIGHT]
+    }
+}
+
+fn initialize_board(board: &mut Vec<Vec<Cell>>) {
+    // Add some initial live cells here, for example:
+    board[5][5] = Cell::Alive;
+    board[5][6] = Cell::Alive;
+    board[6][5] = Cell::Alive;
+    board[6][6] = Cell::Alive;
+
+    // Add a smaller board inside a cell
+    if let Cell::Board(ref mut inner_board) = board[10][10] {
+        inner_board[1][2] = Cell::Alive;
+        inner_board[2][3] = Cell::Alive;
+        inner_board[3][1] = Cell::Alive;
+        inner_board[3][2] = Cell::Alive;
+        inner_board[3][3] = Cell::Alive;
+    }
+}
+
+fn print_board(board: &Vec<Vec<Cell>>) {
+    print!("\x1B[2J\x1B[1;1H"); // Clear terminal and move cursor to top-left corner
+    print_board_recursive(board, 0);
+    std::io::stdout().flush().unwrap();
+}
+
+fn print_board_recursive(board: &Vec<Vec<Cell>>, depth: usize) {
+    for row in board {
+        for cell in row {
+            match cell {
+                Cell::Dead => print!("."),
+                Cell::Alive => print!("O"),
+                Cell::Board(inner_board) if depth < RECURSION_DEPTH => {
+                    print!("(");
+                    print_board_recursive(inner_board, depth + 1);
+                    print!(")");
+                }
+                Cell::Board(_) => print!("#"),
+            }
+        }
+        println!();
+    }
+}
+
+fn evolve(board: &Vec<Vec<Cell>>) -> Vec<Vec<Cell>> {
+    let mut new_board = board.clone();
+
+    for y in 0..HEIGHT {
+        for x in 0..WIDTH {
+            let live_neighbors = count_live_neighbors(x, y, &board);
+            new_board[y][x] = match (&board[y][x], live_neighbors) {
+                (Cell::Alive, 2) | (Cell::Alive, 3) => Cell::Alive,
+                (Cell::Dead, 3) => Cell::Alive,
+                (Cell::Board(inner_board), _) => {
+                    let evolved_inner_board = evolve(inner_board);
+                    Cell::Board(evolved_inner_board)
+                }
+                _ => Cell::Dead,
+            };
+        }
     }
 
-    #[wasm_bindgen]
-    pub fn update_and_render(&self, canvas: HtmlCanvasElement) {
-        let context = canvas
-            .get_context("2d")
-            .unwrap()
-            .unwrap()
-            .dyn_into::<CanvasRenderingContext2d>()
-            .unwrap();
+    new_board
+}
 
-        let width = 64;
-        let height = 64;
-        let cell_size = 10.0; // Size of each cell in pixels
+fn count_live_neighbors(x: usize, y: usize, board: &Vec<Vec<Cell>>) -> usize {
+    let mut count = 0;
 
-        // Clone the Rc<RefCell<World>> to use inside the closure
-        let world_clone = self.0.clone();
-
-        let main_closure: Rc<RefCell<Option<Closure<dyn FnMut(f64)>>>> =
-            Rc::new(RefCell::new(None));
-        let main_closure_clone = main_closure.clone();
-
-        *main_closure.borrow_mut() = Some(Closure::wrap(Box::new(move |timestamp: f64| {
-            // Update the world state
-            world_clone.borrow_mut().update();
-
-            // Render the world
-            context.clear_rect(
-                0.0,
-                0.0,
-                width as f64 * cell_size,
-                height as f64 * cell_size,
-            );
-
-            let world = world_clone.borrow();
-            for y in 0..height {
-                for x in 0..width {
-                    let index = world.get_index(x, y);
-                    let cell = world.cells[index];
-
-                    // Set the fill style based on the cell state (alive or dead)
-                    context.set_fill_style(&JsValue::from_str(if cell {
-                        "black"
-                    } else {
-                        "white"
-                    }));
-
-                    // Draw the rectangle for the cell
-                    context.fill_rect(
-                        x as f64 * cell_size,
-                        y as f64 * cell_size,
-                        cell_size,
-                        cell_size,
-                    );
-                }
+    for dy in -1..=1 {
+        for dx in -1..=1 {
+            if dx == 0 && dy == 0 {
+                continue;
             }
 
-            // Schedule the next frame using a new closure
-            window()
-                .expect("Failed to get window object")
-                .request_animation_frame(
-                    main_closure_clone
-                        .borrow()
-                        .as_ref()
-                        .unwrap()
-                        .as_ref()
-                        .unchecked_ref(),
-                )
-                .unwrap();
-        }) as Box<dyn FnMut(f64)>));
-        // Schedule the initial frame
-        window()
-            .expect("Failed to get window object")
-            .request_animation_frame(
-                main_closure
-                    .borrow()
-                    .as_ref()
-                    .unwrap()
-                    .as_ref()
-                    .unchecked_ref(),
-            )
-            .unwrap();
+            let nx = x as isize + dx;
+            let ny = y as isize + dy;
+
+            if nx >= 0 && nx < WIDTH as isize && ny >= 0 && ny < HEIGHT as isize {
+                match &board[ny as usize][nx as usize] {
+                    Cell::Alive => count += 1,
+                    _ => (),
+                }
+            }
+        }
     }
-}
 
-fn compile_shader(
-    context: &WebGl2RenderingContext,
-    shader_type: u32,
-    source: &str,
-) -> Result<WebGlShader, String> {
-    let shader = context
-        .create_shader(shader_type)
-        .ok_or_else(|| String::from("Unable to create shader object"))?;
-    context.shader_source(&shader, source);
-    context.compile_shader(&shader);
-
-    if context
-        .get_shader_parameter(&shader, WebGl2RenderingContext::COMPILE_STATUS)
-        .as_bool()
-        .unwrap_or(false)
-    {
-        Ok(shader)
-    } else {
-        Err(context
-            .get_shader_info_log(&shader)
-            .unwrap_or_else(|| String::from("Unknown error creating shader")))
-    }
-}
-
-// Link a program
-fn link_program(
-    context: &WebGl2RenderingContext,
-    vert_shader: &WebGlShader,
-    frag_shader: &WebGlShader,
-) -> Result<WebGlProgram, String> {
-    let program = context
-        .create_program()
-        .ok_or_else(|| String::from("Unable to create program object"))?;
-
-    context.attach_shader(&program, vert_shader);
-    context.attach_shader(&program, frag_shader);
-    context.link_program(&program);
-
-    if context
-        .get_program_parameter(&program, WebGl2RenderingContext::LINK_STATUS)
-        .as_bool()
-        .unwrap_or(false)
-    {
-        Ok(program)
-    } else {
-        Err(context
-            .get_program_info_log(&program)
-            .unwrap_or_else(|| String::from("Unknown error creating program")))
-    }
+    count
 }
