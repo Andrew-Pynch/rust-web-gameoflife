@@ -1,1 +1,0 @@
-/home/andrew/Github/rust-web-gameoflife/wasm-game-of-life/target/wasm32-unknown-unknown/release/wasm_game_of_life.wasm: /home/andrew/Github/rust-web-gameoflife/wasm-game-of-life/src/lib.rs /home/andrew/Github/rust-web-gameoflife/wasm-game-of-life/src/utils.rs
