@@ -3,8 +3,6 @@ use fixedbitset::FixedBitSet;
 
 mod utils;
 
-use std::fmt;
-
 use wasm_bindgen::prelude::*;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -78,44 +76,44 @@ impl Universe {
     }
 
     // Took me forever to figure out how to make this abstract to n x m universe sizes
-    fn get_single_glider_starting_configuration(width: u32, height: u32) -> Vec<Cell> {
-        let first_cell_index = (height + 2) - height;
-        let second_cell_index = height;
-        let third_cell_index = height + 2;
-        let fourth_cell_index = (height * 2) + 1;
-        let fifth_cell_index = (height * 2) + 2;
+    // fn get_single_glider_starting_configuration(width: u32, height: u32) -> Vec<Cell> {
+    //     let first_cell_index = (height + 2) - height;
+    //     let second_cell_index = height;
+    //     let third_cell_index = height + 2;
+    //     let fourth_cell_index = (height * 2) + 1;
+    //     let fifth_cell_index = (height * 2) + 2;
 
-        let cells = (0..width * height)
-            .map(|i| {
-                if i == first_cell_index
-                    || i == second_cell_index
-                    || i == third_cell_index
-                    || i == fourth_cell_index
-                    || i == fifth_cell_index
-                {
-                    Cell::Alive
-                } else {
-                    Cell::Dead
-                }
-            })
-            .collect();
+    //     let cells = (0..width * height)
+    //         .map(|i| {
+    //             if i == first_cell_index
+    //                 || i == second_cell_index
+    //                 || i == third_cell_index
+    //                 || i == fourth_cell_index
+    //                 || i == fifth_cell_index
+    //             {
+    //                 Cell::Alive
+    //             } else {
+    //                 Cell::Dead
+    //             }
+    //         })
+    //         .collect();
 
-        return cells;
-    }
+    //     return cells;
+    // }
 
-    fn get_random_universe_configuration(width: u32, height: u32) -> Vec<Cell> {
-        let cells = (0..width * height)
-            .map(|i: u32| {
-                let random_number = js_sys::Math::random();
-                if random_number > 0.5 {
-                    Cell::Alive
-                } else {
-                    Cell::Dead
-                }
-            })
-            .collect();
-        return cells;
-    }
+    // fn get_random_universe_configuration(width: u32, height: u32) -> Vec<Cell> {
+    //     let cells = (0..width * height)
+    //         .map(|i: u32| {
+    //             let random_number = js_sys::Math::random();
+    //             if random_number > 0.5 {
+    //                 Cell::Alive
+    //             } else {
+    //                 Cell::Dead
+    //             }
+    //         })
+    //         .collect();
+    //     return cells;
+    // }
 }
 
 #[wasm_bindgen]
@@ -123,8 +121,8 @@ impl Universe {
     pub fn new() -> Universe {
         utils::set_panic_hook();
 
-        let width = 64;
-        let height = 64;
+        let width = 256;
+        let height = 256;
 
         let size = (width * height) as usize;
         let mut cells = FixedBitSet::with_capacity(size);
@@ -133,8 +131,6 @@ impl Universe {
             cells.set(i, i % 2 == 0 || i % 7 == 0);
         }
 
-        // let cells: Vec<Cell> = Universe::get_single_glider_starting_configuration(width, height);
-
         Universe {
             width,
             height,
@@ -142,11 +138,11 @@ impl Universe {
         }
     }
 
-    pub fn width(&self) -> u32 {
+    pub fn get_width(&self) -> u32 {
         self.width
     }
 
-    pub fn height(&self) -> u32 {
+    pub fn get_height(&self) -> u32 {
         self.height
     }
 
@@ -178,6 +174,79 @@ impl Universe {
         let idx = self.get_index(row, column);
         self.cells.set(idx, !self.cells[idx]);
         // self.cells[idx]
+    }
+
+    pub fn spawn_glider(&mut self, row: u32, col: u32) {
+        let glider = [(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)];
+
+        for (r, c) in glider.iter() {
+            let row = (row + r) % self.height;
+            let col = (col + c) % self.width;
+            let idx = self.get_index(row, col);
+            self.cells.set(idx, true);
+        }
+    }
+
+    pub fn spawn_pulsar(&mut self, row: u32, col: u32) {
+        let pulsar = [
+            (2, 0),
+            (3, 0),
+            (4, 0),
+            (8, 0),
+            (9, 0),
+            (10, 0),
+            (0, 2),
+            (0, 3),
+            (0, 4),
+            (0, 8),
+            (0, 9),
+            (0, 10),
+            (5, 2),
+            (5, 3),
+            (5, 4),
+            (5, 8),
+            (5, 9),
+            (5, 10),
+            (7, 2),
+            (7, 3),
+            (7, 4),
+            (7, 8),
+            (7, 9),
+            (7, 10),
+            (12, 2),
+            (12, 3),
+            (12, 4),
+            (12, 8),
+            (12, 9),
+            (12, 10),
+            (2, 5),
+            (3, 5),
+            (4, 5),
+            (8, 5),
+            (9, 5),
+            (10, 5),
+            (2, 7),
+            (3, 7),
+            (4, 7),
+            (8, 7),
+            (9, 7),
+            (10, 7),
+            (2, 12),
+            (3, 12),
+            (4, 12),
+            (8, 12),
+            (9, 12),
+            (10, 12),
+            (12, 5),
+            (12, 7),
+        ];
+
+        for (r, c) in pulsar.iter() {
+            let row = (row + r) % self.height;
+            let col = (col + c) % self.width;
+            let idx = self.get_index(row, col);
+            self.cells.set(idx, true);
+        }
     }
 
     pub fn tick(&mut self) {

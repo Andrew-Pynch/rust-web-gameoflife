@@ -1,6 +1,8 @@
 {
     "rust-analyzer.linkedProjects": [
         "./Cargo.toml",
-        "./terminal-implementation/Cargo.toml"
+        "./terminal-implementation/Cargo.toml",
+        "./wasm-game-of-life/Cargo.toml",
+        "./wasm-game-of-life/Cargo.toml"
     ]
 }

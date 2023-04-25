@@ -1,3 +1,4 @@
+import { memory } from 'wasm-game-of-life/wasm_game_of_life_bg';
 import { ctx } from './canvas';
 import { ALIVE_COLOR, CELL_SIZE, DEAD_COLOR, GRID_COLOR } from './constants';
 import { height, universe, width } from './simulation';
@@ -23,7 +24,7 @@ export function drawGrid() {
 }
 
 export function drawCells() {
-    debugger;
+    // debugger;
     const cellsPtr = universe.cells();
 
     // This is updated!

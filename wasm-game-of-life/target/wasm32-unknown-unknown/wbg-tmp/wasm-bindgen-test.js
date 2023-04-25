@@ -171,7 +171,7 @@ function _assertNum(n) {
 function __wbg_adapter_18(arg0, arg1, arg2) {
     _assertNum(arg0);
     _assertNum(arg1);
-    wasm._dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h58410cc9116828ca(arg0, arg1, addHeapObject(arg2));
+    wasm._dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h7d0b111a8360ecff(arg0, arg1, addHeapObject(arg2));
 }
 
 let cachedUint32Memory0 = null;
@@ -265,10 +265,10 @@ export function __wbgtest_console_error(args) {
     }
 }
 
-function __wbg_adapter_38(arg0, arg1) {
+function __wbg_adapter_41(arg0, arg1) {
     _assertNum(arg0);
     _assertNum(arg1);
-    wasm.wasm_bindgen__convert__closures__invoke0_mut__h7303592deffae4c3(arg0, arg1);
+    wasm.wasm_bindgen__convert__closures__invoke0_mut__h7b1dac330a08576a(arg0, arg1);
 }
 
 function handleError(f, args) {
@@ -278,17 +278,17 @@ function handleError(f, args) {
         wasm.__wbindgen_exn_store(addHeapObject(e));
     }
 }
-function __wbg_adapter_61(arg0, arg1, arg2, arg3, arg4) {
+function __wbg_adapter_64(arg0, arg1, arg2, arg3, arg4) {
     _assertNum(arg0);
     _assertNum(arg1);
     _assertNum(arg3);
-    wasm.wasm_bindgen__convert__closures__invoke3_mut__hc3e038cbf62c4906(arg0, arg1, addHeapObject(arg2), arg3, addHeapObject(arg4));
+    wasm.wasm_bindgen__convert__closures__invoke3_mut__hb418d088316f33f0(arg0, arg1, addHeapObject(arg2), arg3, addHeapObject(arg4));
 }
 
-function __wbg_adapter_74(arg0, arg1, arg2, arg3) {
+function __wbg_adapter_77(arg0, arg1, arg2, arg3) {
     _assertNum(arg0);
     _assertNum(arg1);
-    wasm.wasm_bindgen__convert__closures__invoke2_mut__h3310915a1bdf097b(arg0, arg1, addHeapObject(arg2), addHeapObject(arg3));
+    wasm.wasm_bindgen__convert__closures__invoke2_mut__h58446bbb3effa38c(arg0, arg1, addHeapObject(arg2), addHeapObject(arg3));
 }
 
 /**
@@ -377,6 +377,39 @@ export class Universe {
         _assertNum(this.ptr);
         _assertNum(height);
         wasm.universe_set_height(this.ptr, height);
+    }
+    /**
+    * @param {number} row
+    * @param {number} column
+    */
+    toggle_cell(row, column) {
+        if (this.ptr == 0) throw new Error('Attempt to use a moved value');
+        _assertNum(this.ptr);
+        _assertNum(row);
+        _assertNum(column);
+        wasm.universe_toggle_cell(this.ptr, row, column);
+    }
+    /**
+    * @param {number} row
+    * @param {number} col
+    */
+    spawn_glider(row, col) {
+        if (this.ptr == 0) throw new Error('Attempt to use a moved value');
+        _assertNum(this.ptr);
+        _assertNum(row);
+        _assertNum(col);
+        wasm.universe_spawn_glider(this.ptr, row, col);
+    }
+    /**
+    * @param {number} row
+    * @param {number} col
+    */
+    spawn_pulsar(row, col) {
+        if (this.ptr == 0) throw new Error('Attempt to use a moved value');
+        _assertNum(this.ptr);
+        _assertNum(row);
+        _assertNum(col);
+        wasm.universe_spawn_pulsar(this.ptr, row, col);
     }
     /**
     */
@@ -512,7 +545,7 @@ function getImports() {
                 const a = state0.a;
                 state0.a = 0;
                 try {
-                    return __wbg_adapter_38(a, state0.b, );
+                    return __wbg_adapter_41(a, state0.b, );
                 } finally {
                     state0.a = a;
                 }
@@ -614,7 +647,7 @@ function getImports() {
                 const a = state0.a;
                 state0.a = 0;
                 try {
-                    return __wbg_adapter_61(a, state0.b, arg0, arg1, arg2);
+                    return __wbg_adapter_64(a, state0.b, arg0, arg1, arg2);
                 } finally {
                     state0.a = a;
                 }
@@ -651,7 +684,7 @@ function getImports() {
                 const a = state0.a;
                 state0.a = 0;
                 try {
-                    return __wbg_adapter_74(a, state0.b, arg0, arg1);
+                    return __wbg_adapter_77(a, state0.b, arg0, arg1);
                 } finally {
                     state0.a = a;
                 }
@@ -694,7 +727,7 @@ function getImports() {
     imports.wbg.__wbindgen_throw = function(arg0, arg1) {
         throw new Error(getStringFromWasm0(arg0, arg1));
     };
-    imports.wbg.__wbindgen_closure_wrapper1395 = function() { return logError(function (arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper1343 = function() { return logError(function (arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 211, __wbg_adapter_18);
         return addHeapObject(ret);
     }, arguments) };

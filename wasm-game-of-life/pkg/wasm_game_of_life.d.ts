@@ -17,11 +17,11 @@ export class Universe {
 /**
 * @returns {number}
 */
-  width(): number;
+  get_width(): number;
 /**
 * @returns {number}
 */
-  height(): number;
+  get_height(): number;
 /**
 * @returns {number}
 */
@@ -45,6 +45,16 @@ export class Universe {
 * @param {number} column
 */
   toggle_cell(row: number, column: number): void;
+/**
+* @param {number} row
+* @param {number} col
+*/
+  spawn_glider(row: number, col: number): void;
+/**
+* @param {number} row
+* @param {number} col
+*/
+  spawn_pulsar(row: number, col: number): void;
 /**
 */
   tick(): void;

@@ -5,23 +5,39 @@
         <title>WASM Game of Life</title>
         <style>
             body {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
+                margin: 0;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
+                height: 100vh;
+                overflow: hidden;
+            }
+            #fps {
+                margin-top: 1em;
+                white-space: pre;
+                font-family: monospace;
+            }
+            #controls {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 1rem;
+            }
+            #game-of-life-canvas {
+                
+                max-width: 100%;
+                max-height: calc(100vh - 4rem); /* Adjusts canvas height to leave space for buttons and fps counter */
             }
         </style>
     </head>
     <body>
-        <span>
+
+        <div id="controls">
+            <div id="fps"></div>
             <button id="play-pause"></button>
             <input type="range" id="simulation-speed" min="0" max="100" value="50"></input>
-        </span>
+        </div>
         <canvas id="game-of-life-canvas"></canvas>
         <script src="./bootstrap.js"></script>
     </body>

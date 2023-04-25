@@ -152,15 +152,15 @@ export class Universe {
     /**
     * @returns {number}
     */
-    width() {
-        const ret = wasm.universe_width(this.ptr);
+    get_width() {
+        const ret = wasm.universe_get_width(this.ptr);
         return ret >>> 0;
     }
     /**
     * @returns {number}
     */
-    height() {
-        const ret = wasm.universe_height(this.ptr);
+    get_height() {
+        const ret = wasm.universe_get_height(this.ptr);
         return ret >>> 0;
     }
     /**
@@ -194,6 +194,20 @@ export class Universe {
     */
     toggle_cell(row, column) {
         wasm.universe_toggle_cell(this.ptr, row, column);
+    }
+    /**
+    * @param {number} row
+    * @param {number} col
+    */
+    spawn_glider(row, col) {
+        wasm.universe_spawn_glider(this.ptr, row, col);
+    }
+    /**
+    * @param {number} row
+    * @param {number} col
+    */
+    spawn_pulsar(row, col) {
+        wasm.universe_spawn_pulsar(this.ptr, row, col);
     }
     /**
     */
