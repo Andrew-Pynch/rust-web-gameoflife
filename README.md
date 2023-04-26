@@ -1,3 +1,7 @@
+# Summary
+Simple implementation of conways game of life in the browser using rust wasm, wasm-pack etc.
+![](https://i.gyazo.com/79fc30ed7f66c0ccfacc9e9c6b31605b.png)
+
 # TODO
 
 -   add scrolling and zooming
